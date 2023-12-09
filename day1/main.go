@@ -13,43 +13,48 @@ func check(e error) {
 	}
 }
 
+func sum(arr []int) int {
+	total := 0
+	for _, val := range arr {
+		total += val
+	}
+	return total
+}
+
 func main() {
 	fmt.Println("Day1 ")
 
 	file, err := os.Open("./input.txt")
 	check(err)
-	// fmt.Printf("%s", data)
 	var scanner = bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
-	// var textLines []stringln
-	counter := 0
+	var lineNumbers []int
 	for scanner.Scan() {
-		// textLines = append(textLines, scanner.Text())
-		if counter < 5 {
-			input := scanner.Text()
-			// inputLen := len(input)
-			fmt.Printf("word %s: ", input)
-			digitCounter, firstNumber, lastNumber := 0, 0, 0
-			for _, char := range input {
-				if unicode.IsDigit(char) {
-					digit := int(char - '0')
-					if digit >= 0 || digit <= 9 {
-						digitCounter++
-						if digitCounter == 1 {
-							// find the last number in the string in this case
-							firstNumber = digit
-						} else {
-							lastNumber = digit
-						}
-						// fmt.Print(digit)
+		input := scanner.Text()
+		digitCounter, firstNumber, lastNumber := 0, 0, 0
+		for _, char := range input {
+			if unicode.IsDigit(char) {
+				digit := int(char - '0')
+				if digit >= 0 || digit <= 9 {
+					digitCounter++
+					if digitCounter == 1 {
+						firstNumber = digit
+					} else {
+						// set digit to last number each time until the loop ends
+						// last value set will be the last digit
+						lastNumber = digit
 					}
 				}
 			}
-			fmt.Printf("first %d last %d ", firstNumber, lastNumber)
-			fmt.Println()
 		}
-		counter++
+		var lineNumber int
+		if digitCounter == 1 {
+			lineNumber = (firstNumber * 10) + firstNumber
+		} else {
+			lineNumber = (firstNumber * 10) + lastNumber
+		}
+		lineNumbers = append(lineNumbers, lineNumber)
 	}
 	file.Close()
-
+	fmt.Printf("total: %d\n", sum(lineNumbers))
 }
