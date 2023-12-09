@@ -4,13 +4,55 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
+
+const red, green, blue = 12, 13, 14
+
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func sum(arr []int) int {
+	total := 0
+	for _, val := range arr {
+		total += val
+	}
+	return total
+}
+
+func subsetsPassed(subsets string) bool {
+	passed := true
+SubsetsLoop:
+	for _, subset := range strings.Split(subsets, ";") {
+		colors := strings.Split(subset, ",")
+		for _, color := range colors {
+			countColor := strings.Split(color, " ")
+			count, err := strconv.Atoi(countColor[1])
+			check(err)
+			color := countColor[2]
+			switch color {
+			case "red":
+				passed = count <= red
+			case "green":
+				passed = count <= green
+			case "blue":
+				passed = count <= blue
+			}
+			if !passed {
+				break SubsetsLoop
+			}
+		}
+	}
+	return passed
+}
 
 func main() {
 	fmt.Println("Day2: ")
 
-	const r, g, b = 12, 13, 14
 	file, err := os.Open("./input.txt")
 	if err != nil {
 		panic(err)
@@ -18,20 +60,16 @@ func main() {
 	var scanner = bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 
-	counter := 0
+	var passedGameIds []int
 	for scanner.Scan() {
-		if counter < 5 {
-			input := strings.Split(scanner.Text(), ":")
-			gameId, subsets := input[0], input[1]
-			// for each game sum the values of r,g,b in each subset
-			// for gameIds having sums equal or less then provided rgb values, store those gameIds
-			fmt.Print(gameId)
-			for _, subset := range strings.Split(subsets, ";") {
-				// subsets provided in each game
-				fmt.Printf("%s ", subset)
-			}
-			fmt.Println()
-			counter++
+		input := strings.Split(scanner.Text(), ":")
+		gameId, subsets := input[0], input[1]
+		id, err := strconv.Atoi(strings.Split(gameId, " ")[1])
+		check(err)
+		// push all gameIds and skip the ones that fail
+		if subsetsPassed(subsets) {
+			passedGameIds = append(passedGameIds, id)
 		}
 	}
+	fmt.Printf("total: %d\n", sum(passedGameIds))
 }
